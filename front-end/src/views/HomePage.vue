@@ -33,7 +33,7 @@ export default {
   },
   methods: {
     ClickStart () {
-      console.log('1')
+      this.$router.push({ path: 'NewGame' })
     }
   }
 }
