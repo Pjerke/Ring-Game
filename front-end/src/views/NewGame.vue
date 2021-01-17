@@ -21,9 +21,16 @@
             ></v-text-field>
             <v-text-field
                 class="mr-15"
-                v-model="stake"
+                v-model="stakes"
                 :rules="[rules.required, rules.number]"
                 label="Stake per player"
+                outlined
+            ></v-text-field>
+            <v-text-field
+                class="mr-15"
+                v-model="ante"
+                :rules="[rules.required, rules.number]"
+                label="Ante per round"
                 outlined
             ></v-text-field>
         </v-form>
@@ -32,10 +39,13 @@
     <v-card-actions>
         <v-btn 
             class="mx-auto"
-            color="blue"
+            color="#0062A2"
+            dark
+            :loading="loading"
             x-large
             :disabled="!valid"
-            @click="click">Start</v-btn>
+            @click="click">Start
+        </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -46,38 +56,37 @@ import axios from 'axios'
 export default {
   name: 'NewGame',
   data: () => ({
-      items: [3,4,5,6],
-      nPlayers: 4,
-      players: ['', '', '', '', '', ''],
-      stake: '',
+      items: [2,3,4,5,6],
+      nPlayers: 3,
+      players: ['Pieter', 'Stein', 'Kevin', '', '', ''],
+      stakes: 100,
+      ante: 10,
       rules: {
         required: (v) => !!v || 'Required',
         number: (v) => !isNaN(Number(v)) || 'Must be a number',
       },
-      valid: false
+      valid: false,
+      loading: false
   }),
   methods: {
         click () {
-            console.log(this.players)
-            axios.get('http://localhost:5000/newgame')
+            this.loading = true
+            const player_names = this.players.slice(0, this.nPlayers)
+            const stakes = this.stakes
+            const ante = this.ante
+            axios.post('http://localhost:5000/newgame', 
+                {player_names, stakes, ante}
+                )
                 .then((res) => {
                     console.log(res)
-                    axios.get('http://localhost:5000/test')
-                        .then((res) => {
-                            console.log(res)
-                        })
-                        .catch((error) => {
-                            console.error(error)
-                        })
-                        // .finally(() => {
-                        // })
+                    this.$router.push({ path: 'Game'}) //, params: {player_names, stakes, ante} })
                 })
                 .catch((error) => {
                     console.error(error)
                 })
-                // .finally(() => {
-                // })
-            
+                .finally(() => {
+                    this.loading = false
+                })
         }
   }
 }
